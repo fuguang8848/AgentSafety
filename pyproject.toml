@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "agent-safety"
+version = "1.0.0"
+description = "交响乐技能家族 - Agent 行为安全监控系统，实时风险评估与拦截"
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.10"
+authors = [{name = "楚灵", email = "chuling@agentteam.dev"}]
+
+dependencies = [
+    "pydantic>=2.0",
+    "httpx>=0.24.0",
+    "fastapi>=0.100.0",
+    "uvicorn>=0.20.0",
+]
+
+[project.optional-dependencies]
+dev = ["pytest", "pytest-asyncio"]
+
+[project.scripts]
+agent-safety = "agent_safety.cli:main"
