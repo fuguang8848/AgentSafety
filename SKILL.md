@@ -11,6 +11,11 @@ role: safety-guard
 
 # AgentSafety · 交响乐技能家族安全守卫
 
+> **V 6/19 18:38 SKILL.md 修真** (SOP #34 跨仓 L1 对比):
+> - 失实 1: 13 条规则 — 实际 16 条 (rule_id 唯一计数)
+> - 失实 2: ActionType 12 个 — 实际 13 个 (+ UNKNOWN)
+
+
 > 塔勒布反脆弱思维 + 最小权限原则 | 实时风险评估 | 自动拦截
 
 ## 核心设计
@@ -22,7 +27,7 @@ SafetyEngine.evaluate(action)
     ↓
 ┌─────────────────────────────────┐
 │ 1. 熔断器检查（5次HIGH+触发）  │
-│ 2. 策略规则匹配（13条默认规则）│
+│ 2. 策略规则匹配（16 条默认规则）│
 │ 3. LLM 辅助判断（可选）        │
 └─────────────────────────────────┘
     ↓
@@ -59,15 +64,16 @@ print(decision.risk_level) # CRITICAL
 print(decision.reason)    # curl|sh 是最常见的远程代码执行攻击向量
 ```
 
-## ActionType 一览
+## ActionType 一览 (V 6/19 18:38 L1 验证, 13 个 + UNKNOWN)
 
 - `FILE_READ` / `FILE_WRITE` / `FILE_DELETE` / `FILE_EXECUTE`
 - `SHELL_EXECUTE` / `ENV_READ` / `ENV_WRITE`
 - `HTTP_REQUEST` / `DNS_LOOKUP`
 - `AGENT_SPAWN` / `AGENT_MESSAGE`
 - `DATA_DELETE` / `DATA_EXPORT`
+- `UNKNOWN` (兜底)
 
-## 默认策略（13条）
+## 默认策略（16 条）
 
 ### 关键文件保护
 - SSH 私钥读取 → BLOCK（CRITICAL）
