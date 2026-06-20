@@ -127,12 +127,18 @@ class PolicyRule:
             return False
         if self.target_pattern:
             import fnmatch
-            # 如果规则要求 target 但 action 没有，不匹配
-            if not action.target:
-                return False
-            # 如果 action.target 存在但不匹配 pattern，不匹配
-            if not fnmatch.fnmatch(action.target, self.target_pattern):
-                return False
+            # Match 1: action.target (primary field, e.g. file path)
+            if action.target and fnmatch.fnmatch(action.target, self.target_pattern):
+                return True
+            # Match 2: SHELL_EXECUTE also checks details[cmd] for the command string
+            if action.action_type == ActionType.SHELL_EXECUTE:
+                cmd = action.details.get("cmd", "") if action.details else ""
+                if cmd and fnmatch.fnmatch(cmd, self.target_pattern):
+                    return True
+            # Match 3: pattern is checked against target and (for shell) cmd
+            # pattern targets paths like "/*" or "/home*", not command prefixes
+            # If neither field matched, the rule does not apply
+            return False
         return True
 
 

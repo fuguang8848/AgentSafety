@@ -600,7 +600,7 @@ class SafetySkill(SkillBase):
 
         # 3. 身份证号（18位，格式：6位地址码 + 8位出生日期 + 3位顺序码 + 1位校验码）
         # 地址码：[1-9]\d{5}，出生日期：(19|20)\d{2}(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])，顺序码：\d{3}，校验码：[\dXx]
-        id_pattern = r"[1-9]\d{5}(19|20)\d{2}(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])\d{3}[\dXx]"
+        id_pattern = r"(?<!\d)[1-9]\d{5}(19|20)\d{2}(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])\d{3}[\dXx](?!\d)"
         for match in re.finditer(id_pattern, filtered):
             masked = match.group()[:6] + "********" + match.group()[-4:]
             pii_found.append({"type": "id_card", "value": match.group(), "masked": masked})
