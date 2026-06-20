@@ -167,13 +167,75 @@ default_policies.extend([
 
 
 class PolicyStore:
-    """策略存储与查询"""
+    """策略存储与查询，支持热重载和版本管理"""
 
     def __init__(self, policies: list[dict] | None = None):
         from .core import PolicyRule
         self._rules: list[PolicyRule] = [
             PolicyRule(**p) for p in (policies or default_policies)
         ]
+        self._version = "1.0.0"
+        self._load_time = self._get_current_time()
+        self._file_path: str | None = None
+        self._policies = policies or default_policies
+
+    @staticmethod
+    def _get_current_time() -> str:
+        from datetime import datetime
+        return datetime.now().isoformat()
+
+    def version(self) -> str:
+        """获取当前策略版本"""
+        return self._version
+
+    def load_policy(self, file_path: str) -> dict:
+        """
+        从文件加载策略（支持 YAML/JSON）
+
+        Returns:
+            加载结果，包含 success, loaded_count, version
+        """
+        import json
+        from pathlib import Path
+
+        path = Path(file_path)
+        if not path.exists():
+            return {"success": False, "error": f"文件不存在: {file_path}"}
+
+        try:
+            with open(path, "r", encoding="utf-8") as f:
+                data = json.load(f)
+
+            policies = data if isinstance(data, list) else data.get("policies", [])
+            self._policies = policies
+            self._rules = [self._dict_to_rule(p) for p in policies]
+            self._file_path = str(path)
+            self._version = data.get("version", "1.0.0") if isinstance(data, dict) else "1.0.0"
+            self._load_time = self._get_current_time()
+
+            return {
+                "success": True,
+                "loaded_count": len(self._rules),
+                "version": self._version,
+                "load_time": self._load_time
+            }
+        except Exception as e:
+            return {"success": False, "error": str(e)}
+
+    def reload_policy(self) -> dict:
+        """
+        热重载策略（从上次加载的文件重新读取）
+
+        Returns:
+            重载结果
+        """
+        if not self._file_path:
+            return {"success": False, "error": "没有已加载的策略文件"}
+        return self.load_policy(self._file_path)
+
+    def _dict_to_rule(self, p: dict):
+        from .core import PolicyRule
+        return PolicyRule(**p)
 
     def list_rules(self) -> list[PolicyRule]:
         return self._rules
