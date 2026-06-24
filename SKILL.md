@@ -11,11 +11,6 @@ role: safety-guard
 
 # AgentSafety · 交响乐技能家族安全守卫
 
-> **V 6/19 18:38 SKILL.md 修真** (SOP #34 跨仓 L1 对比):
-> - 失实 1: 13 条规则 — 实际 16 条 (rule_id 唯一计数)
-> - 失实 2: ActionType 12 个 — 实际 13 个 (+ UNKNOWN)
-
-
 > 塔勒布反脆弱思维 + 最小权限原则 | 实时风险评估 | 自动拦截
 
 ## 核心设计
